@@ -1,25 +1,28 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
+import SideBar from "./components/SideBar";
+import { Box } from "@mui/system";
+import { Provider } from "mobx-react";
+import { ThemeProvider } from "@mui/material";
+import { theme } from "./theme";
+import LayoutPage from "./components/LayoutPage";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Provider>
+        <ThemeProvider theme={theme}>
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+            }}
+          >
+            <LayoutPage></LayoutPage>
+          </Box>
+        </ThemeProvider>
+      </Provider>
+    </>
   );
 }
 
