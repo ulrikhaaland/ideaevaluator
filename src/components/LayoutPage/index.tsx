@@ -1,4 +1,4 @@
-import { Box, Container, Typography } from "@mui/material";
+import { Box, Container, Divider, Typography } from "@mui/material";
 import { useState } from "react";
 import { Category, categoryData, SubCategory } from "../../model/categories";
 import CompetitionForm from "../Evaluation/Competition";
@@ -7,26 +7,15 @@ import CompetitionEvaluation from "../Evaluation/Competition";
 import DemandEvaluation from "../Evaluation/Demand";
 import IdeaEvaluation from "../Evaluation/Idea";
 import IdeaForm from "../Form";
+import EvaluationContainer from "../EvaluationContainer";
 
 const categories = categoryData;
 
 const LayoutPage = () => {
-  const [selectedCategory, setSelectedCategory] = useState<Category>(
-    categories[0]
-  );
-
-  const [selectedSubCategory, setSelectedSubCategory] = useState<SubCategory>(
-    categories[0].subCategories[0]
-  );
-
   return (
     <>
       {/* MENU */}
-      <SideBar
-        categories={categories}
-        selectedCategory={selectedCategory}
-        selectedSubCategory={selectedSubCategory}
-      />
+      <SideBar categories={categories} />
       {/* Page Container */}
       <Container
         sx={{
@@ -50,22 +39,9 @@ const LayoutPage = () => {
           idea... And some more.
         </Typography>
         {/* FORM */}
-        <IdeaForm category={undefined}></IdeaForm>
-        <IdeaEvaluation
-          category={categories[0]}
-          open={selectedCategory === categories[0]}
-          onFocusSubCategory={() => null}
-        />
-        <DemandEvaluation
-          category={categories[1]}
-          open={selectedCategory === categories[1]}
-          onFocusSubCategory={() => null}
-        />
-        <CompetitionEvaluation
-          category={categories[2]}
-          open={selectedCategory === categories[2]}
-          onFocusSubCategory={() => null}
-        />
+        <IdeaForm></IdeaForm>
+        <Divider />
+        <EvaluationContainer categories={categories}></EvaluationContainer>
       </Container>
     </>
   );

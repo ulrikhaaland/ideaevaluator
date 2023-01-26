@@ -12,8 +12,8 @@ import MenuItem from "../MenuItem";
 
 interface ComponentProps {
   categories: Category[];
-  selectedCategory: Category;
-  selectedSubCategory: SubCategory;
+  selectedCategory?: Category;
+  selectedSubCategory?: SubCategory;
 }
 
 const SideBar = (props: ComponentProps) => {

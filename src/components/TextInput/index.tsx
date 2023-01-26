@@ -26,6 +26,7 @@ interface ComponentProps {
   type?: string;
   name?: string;
   required?: boolean;
+  placeholder?: string;
 }
 
 const TextInput = (props: ComponentProps) => {
@@ -49,6 +50,7 @@ const TextInput = (props: ComponentProps) => {
     onKeyUp,
     onKeyPress,
     required,
+    placeholder,
   } = props;
 
   const handleChange = (event: any): void => {
@@ -101,6 +103,7 @@ const TextInput = (props: ComponentProps) => {
         disabled={disabled}
         type={type}
         required={required}
+        placeholder={placeholder}
       />
     </>
   );

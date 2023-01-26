@@ -167,10 +167,11 @@ let theme = createTheme({
     },
     subtitle1: {
       fontFamily: "'Open Sans', 'Raleway', 'Arial'",
-      fontWeight: 600,
+      fontWeight: 400,
       fontSize: "1rem",
       lineHeight: "1.375rem",
       letterSpacing: "0.009rem",
+      fontStyle: "italic",
     },
     subtitle2: {
       fontFamily: "'Open Sans', 'Raleway', 'Arial'",
