@@ -1,9 +1,12 @@
 import { Button, CircularProgress, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { IdeaStoreContext } from "../../model/idea.store";
 import TextInput from "../TextInput";
 
 const IdeaForm = () => {
+  const ideaStore = useContext(IdeaStoreContext);
+
   const [is, setIs] = useState<string | undefined>();
 
   const [should, setShould] = useState<string | undefined>();
@@ -12,9 +15,15 @@ const IdeaForm = () => {
 
   const [loadingEval, setLoadingEval] = useState<boolean>(false);
 
+  const [idea, setIdea] = useState<string | undefined>(undefined);
+
   const onEstimate = () => {
     console.log("Estimate");
   };
+
+  useEffect(() => {
+    setIdea(ideaStore.genIdea);
+  }, [ideaStore.genIdea]);
 
   return (
     <Box
@@ -25,7 +34,7 @@ const IdeaForm = () => {
         padding: "24px 0px",
       }}
     >
-      <Typography variant="h5">The Problem:</Typography>
+      {/* <Typography variant="h5">Idea Generator</Typography>
       <Box
         sx={{
           height: "12px",
@@ -39,7 +48,8 @@ const IdeaForm = () => {
         }}
       >
         <Typography variant="subtitle1">
-          A Problem is the gap between what is and what should be.
+          A Problem is the gap between what is and what should be. A solution is
+          an idea that bridges the gap.
         </Typography>
         <Box
           sx={{
@@ -89,19 +99,19 @@ const IdeaForm = () => {
         >
           {loadingGap ? "Bridging" : "Bridge the gap"}
         </Button>
-      </Box>
-      <Box
+      </Box> */}
+      {/* <Box
         sx={{
           height: "12px",
         }}
-      />
+      /> */}
 
-      <Box
+      {/* <Box
         sx={{
           height: "12px",
         }}
-      />
-      <Typography variant="h5">The Idea:</Typography>
+      /> */}
+      <Typography variant="h5">Product Idea Evaluator</Typography>
       <Box
         sx={{
           height: "12px",
@@ -131,7 +141,7 @@ const IdeaForm = () => {
         ></TextInput>
         <Button
           onClick={() => onEstimate()}
-          disabled={is === undefined || should === undefined || loadingEval}
+          disabled={idea === undefined || loadingEval}
           variant={"contained"}
           color={"primary"}
           autoFocus={false}
