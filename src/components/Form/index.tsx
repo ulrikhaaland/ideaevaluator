@@ -80,7 +80,11 @@ const IdeaForm = () => {
         ></TextInput>
         <Button
           onClick={() => onEvaluation()}
-          disabled={idea === undefined || loadingEval}
+          disabled={
+            idea === undefined ||
+            loadingEval ||
+            ideaStore.evaluation !== undefined
+          }
           variant={"contained"}
           color={"primary"}
           autoFocus={false}
