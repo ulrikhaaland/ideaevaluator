@@ -5,7 +5,7 @@ export const completion = async (prompt: string) => {
     model: "text-davinci-003",
     prompt: prompt,
     temperature: 0,
-    max_tokens: 7,
+    max_tokens: 256,
   });
 
   return response.data.choices[0].text;
