@@ -10,7 +10,7 @@ export type IdeaEval = {
   problem?: string;
 };
 
-class IdeaStore {
+export default class IdeaStore {
   genIdea?: string;
   idea?: string;
   whatIs?: string;
@@ -29,6 +29,7 @@ class IdeaStore {
       evaluateIdea: action,
       preEvaluateIdea: action,
       setIdea: action,
+      setEvaluation: action,
     });
   }
 
@@ -40,6 +41,10 @@ class IdeaStore {
 
   setIdea = (idea: string) => {
     this.idea = idea;
+  };
+
+  setEvaluation = (evaluation: IdeaEval) => {
+    this.evaluation = evaluation;
   };
 
   evaluateIdea = async () => {
@@ -79,13 +84,17 @@ class IdeaStore {
       problem = await completion(prompt4);
     }
 
-    this.evaluation = {
+    const evaluation = {
       viable: viable,
       viabilityWhy: viabilityWhy ?? "",
       improvements: improvements,
       realization: realization,
       problem: problem,
     };
+
+    this.setEvaluation(evaluation);
+    this.evaluation = evaluation;
+    this.isViable = viable;
   };
 
   async preEvaluateIdea(): Promise<boolean> {
@@ -116,5 +125,3 @@ class IdeaStore {
     this.genIdea = result;
   }
 }
-
-export const IdeaStoreContext = createContext(new IdeaStore());

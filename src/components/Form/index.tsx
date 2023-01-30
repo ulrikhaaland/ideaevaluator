@@ -1,12 +1,12 @@
 import { Button, CircularProgress, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { useContext, useEffect, useState } from "react";
-import { IdeaStoreContext } from "../../model/idea.store";
+import { useStore } from "../../stores";
 import TextInput from "../TextInput";
 import FormProblem from "./FormProblem";
 
 const IdeaForm = () => {
-  const ideaStore = useContext(IdeaStoreContext);
+  const { ideaStore } = useStore();
 
   const [loadingEval, setLoadingEval] = useState<boolean>(false);
 

@@ -1,7 +1,13 @@
-import { Box } from "@mui/material";
-import { ReactElement, useContext, useEffect, useState } from "react";
+import { Box, Typography } from "@mui/material";
+import {
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { Category } from "../../../model/categories";
-import { IdeaStoreContext } from "../../../model/idea.store";
+import { useStore } from "../../../stores";
 import ExpandableCard from "../../ExpandableCard";
 
 interface ComponentProps {
@@ -13,18 +19,32 @@ interface ComponentProps {
 const IdeaEvaluation = (props: ComponentProps) => {
   const { category } = props;
 
-  const ideaStore = useContext(IdeaStoreContext);
+  const { ideaStore } = useStore();
 
   const [open, setOpen] = useState(props.open);
 
-  const [eval, setEval] = useState(ideaStore.evaluation);
+  const { evaluation, isViable } = ideaStore;
+
+  const [, updateState] = useState<any>();
+  const forceUpdate = useCallback(() => updateState({}), []);
 
   useEffect(() => {
-    setEval(ideaStore.evaluation);
-  }, [ideaStore.evaluation]);
+    if (evaluation) {
+      setOpen(true);
+    }
+  }, [evaluation, isViable, ideaStore, ideaStore.evaluation]);
 
   const getExpandedContent = (): ReactElement => {
-    return <Box></Box>;
+    return (
+      <Box>
+        <p style={{ color: "black" }}>as</p>
+        <Typography variant="h6" style={{ color: "black" }}>
+          {evaluation?.viable
+            ? "This idea is viable"
+            : "This idea is not viable"}
+        </Typography>
+      </Box>
+    );
   };
 
   return (
@@ -36,13 +56,15 @@ const IdeaEvaluation = (props: ComponentProps) => {
     >
       <ExpandableCard
         category={category}
-        expandedContent={getExpandedContent()}
-        open={ideaStore.evaluation === undefined ? false : open}
+        isExpandable={evaluation === undefined ? false : true}
+        open={evaluation ? false : open}
         setOpen={(open) => {
-          if (ideaStore.evaluation === undefined) return;
-          setOpen(open);
+          if (evaluation) return;
+          else setOpen(open);
         }}
-      ></ExpandableCard>
+      >
+        {evaluation && getExpandedContent()}
+      </ExpandableCard>
     </Box>
   );
 };

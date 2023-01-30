@@ -31,8 +31,6 @@ const DemandEvaluation = (props: ComponentProps) => {
     >
       <ExpandableCard
         category={category}
-        collapsedContent={getCollapsedContent}
-        expandedContent={getExpandedContent}
         open={open}
         setOpen={setOpen}
       ></ExpandableCard>

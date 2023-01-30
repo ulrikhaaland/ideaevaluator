@@ -4,22 +4,23 @@ import "./index.css";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { Category } from "../../model/categories";
-import TextInput from "../TextInput";
 
 interface ComponentProps {
   category: Category;
-  collapsedContent?: any;
-  expandedContent: any;
   open: boolean;
   setOpen: (open: boolean) => void;
+  isExpandable?: boolean;
+  children?: any;
 }
 
 const ExpandableCard = (props: ComponentProps) => {
-  const { category, collapsedContent, expandedContent } = props;
+  const { category, isExpandable } = props;
 
   const [open, setOpen] = useState(props.open);
 
   function expand() {
+    if (!isExpandable) return;
+
     setOpen(!open);
     props.setOpen(!open);
   }
@@ -69,7 +70,9 @@ const ExpandableCard = (props: ComponentProps) => {
               </Typography>
             )}
           </Box>
-          {open ? <ExpandLess /> : <ExpandMore />}
+          {isExpandable === true && (
+            <>{open ? <ExpandLess /> : <ExpandMore />}</>
+          )}
         </Box>
       </Box>
       <Box className="lower">
@@ -79,7 +82,7 @@ const ExpandableCard = (props: ComponentProps) => {
             height: "24px",
           }}
         />
-        {expandedContent}
+        {props.children}
       </Box>
     </div>
   );
