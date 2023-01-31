@@ -1,7 +1,16 @@
-import { Box } from "@mui/material";
-import { ReactElement, useState } from "react";
+import { Box, Divider, Typography } from "@mui/material";
+import { observer } from "mobx-react";
+import {
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { Category } from "../../../model/categories";
+import { useStore } from "../../../stores";
 import ExpandableCard from "../../ExpandableCard";
+import EvaluationItem from "../EvaluationItem";
 
 interface ComponentProps {
   category: Category;
@@ -12,14 +21,75 @@ interface ComponentProps {
 const DemandEvaluation = (props: ComponentProps) => {
   const { category } = props;
 
+  const { ideaStore, demandStore } = useStore();
+
   const [open, setOpen] = useState(props.open);
 
-  const getCollapsedContent = (): ReactElement => {
-    return <Box></Box>;
-  };
+  const { evaluation } = demandStore;
+
+  useEffect(() => {
+    if (evaluation) {
+      setOpen(true);
+    }
+  }, [evaluation]);
 
   const getExpandedContent = (): ReactElement => {
-    return <Box></Box>;
+    return (
+      <Box>
+        <Typography variant="h6" style={{ color: "black" }}>
+          {evaluation?.demanded ? getViableContent() : getNotViableContent()}
+        </Typography>
+      </Box>
+    );
+  };
+
+  const getNotViableContent = (): ReactElement => {
+    return (
+      <Box>
+        <Typography variant="h6" style={{ color: "black" }}>
+          This idea is not viable:
+        </Typography>
+        <Typography variant="body1" style={{ color: "black" }}>
+          {evaluation?.demandWhy}
+        </Typography>
+      </Box>
+    );
+  };
+
+  const getViableContent = (): ReactElement => {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {evaluation?.demanded && (
+          <EvaluationItem
+            title="Demand"
+            content={evaluation?.demandWhy}
+            first={true}
+          />
+        )}
+
+        {evaluation?.marketSize && evaluation?.marketSize !== "" && (
+          <EvaluationItem
+            title="Market Size"
+            content={evaluation?.marketSize}
+          />
+        )}
+        {evaluation?.trend && (
+          <EvaluationItem title="Trend" content={evaluation?.trend} />
+        )}
+        {evaluation?.problem && (
+          <EvaluationItem
+            title="Biggest Problem"
+            content={evaluation?.problem}
+            last={true}
+          />
+        )}
+      </Box>
+    );
   };
 
   return (
@@ -31,11 +101,18 @@ const DemandEvaluation = (props: ComponentProps) => {
     >
       <ExpandableCard
         category={category}
-        open={open}
-        setOpen={setOpen}
-      ></ExpandableCard>
+        isExpandable={evaluation === undefined ? false : true}
+        open={!evaluation ? false : open}
+        viable={evaluation?.demanded}
+        setOpen={(open) => {
+          if (!evaluation) return;
+          else setOpen(open);
+        }}
+      >
+        {evaluation && getExpandedContent()}
+      </ExpandableCard>
     </Box>
   );
 };
 
-export default DemandEvaluation;
+export default observer(DemandEvaluation);

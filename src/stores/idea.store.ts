@@ -15,14 +15,12 @@ export default class IdeaStore {
   idea?: string;
   whatIs?: string;
   whatShouldBe?: string;
-  isViable?: boolean;
   evaluation?: IdeaEval;
 
   constructor() {
     makeObservable(this, {
       genIdea: observable,
       idea: observable,
-      isViable: observable,
       evaluation: observable,
       ideaCompletion: action,
       setProblem: action,
@@ -43,7 +41,7 @@ export default class IdeaStore {
     this.idea = idea;
   };
 
-  setEvaluation = (evaluation: IdeaEval) => {
+  setEvaluation = (evaluation: IdeaEval | undefined) => {
     this.evaluation = evaluation;
   };
 
@@ -67,7 +65,7 @@ export default class IdeaStore {
 
       /// Improvements
       const prompt2 = this.addIdeaToPrompt(
-        "What improvements can be made to the product idea?"
+        "What improvements can be made to the product idea? Answer with a list of the five most relevant improvements."
       );
       improvements = await completion(prompt2);
 
@@ -92,9 +90,7 @@ export default class IdeaStore {
       problem: problem,
     };
 
-    this.setEvaluation(evaluation);
     this.evaluation = evaluation;
-    this.isViable = viable;
   };
 
   async preEvaluateIdea(): Promise<boolean> {
@@ -104,9 +100,9 @@ export default class IdeaStore {
 
     const result = await completion(prompt);
 
-    if (result?.includes("Yes.")) {
+    if (result?.includes("Yes")) {
       return true;
-    } else if (result?.includes("No.")) {
+    } else if (result?.includes("No")) {
       return false;
     } else {
       console.log("stop");

@@ -1,5 +1,5 @@
 import { Box, Divider, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./index.css";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -11,10 +11,11 @@ interface ComponentProps {
   setOpen: (open: boolean) => void;
   isExpandable?: boolean;
   children?: any;
+  viable?: boolean;
 }
 
 const ExpandableCard = (props: ComponentProps) => {
-  const { category, isExpandable } = props;
+  const { category, isExpandable, viable } = props;
 
   const [open, setOpen] = useState(props.open);
 
@@ -24,6 +25,10 @@ const ExpandableCard = (props: ComponentProps) => {
     setOpen(!open);
     props.setOpen(!open);
   }
+
+  useEffect(() => {
+    setOpen(props.open);
+  }, [props.open]);
 
   return (
     <div
@@ -39,10 +44,25 @@ const ExpandableCard = (props: ComponentProps) => {
           // background: "rgb(230, 230, 230)",
           display: "flex",
           alignItems: "center",
-          cursor: "pointer",
+          cursor: isExpandable ? "pointer" : "default",
         }}
         onClick={expand}
       >
+        <Box
+          sx={{
+            top: "0",
+            left: "0",
+            position: "absolute",
+            height: "50px",
+            width: "100%",
+            background:
+              viable !== undefined
+                ? viable
+                  ? "rgb(126, 195, 132, 0.5)"
+                  : "rgb(255,0,0, 0.5)"
+                : "",
+          }}
+        ></Box>
         <Box
           sx={{
             justifyContent: "space-between",
@@ -50,6 +70,7 @@ const ExpandableCard = (props: ComponentProps) => {
             color: (theme) => theme.palette.text.primary,
             display: "flex",
             alignItems: "center",
+            zIndex: 1,
           }}
         >
           <Box
@@ -76,7 +97,7 @@ const ExpandableCard = (props: ComponentProps) => {
         </Box>
       </Box>
       <Box className="lower">
-        <Divider />
+        {/* <Divider /> */}
         <Box
           sx={{
             height: "24px",

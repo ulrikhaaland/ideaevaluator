@@ -1,16 +1,20 @@
 import { Button, CircularProgress, Typography } from "@mui/material";
 import { Box } from "@mui/system";
+import { observer } from "mobx-react";
 import { useContext, useEffect, useState } from "react";
 import { useStore } from "../../stores";
+import { IdeaEval } from "../../stores/idea.store";
 import TextInput from "../TextInput";
 import FormProblem from "./FormProblem";
 
 const IdeaForm = () => {
-  const { ideaStore } = useStore();
+  const { ideaStore, demandStore } = useStore();
 
   const [loadingEval, setLoadingEval] = useState<boolean>(false);
 
   const [idea, setIdea] = useState<string | undefined>(undefined);
+
+  const [evaluation, setEvaluation] = useState<IdeaEval | undefined>(undefined);
 
   useEffect(() => {
     setIdea(ideaStore.genIdea);
@@ -18,25 +22,30 @@ const IdeaForm = () => {
 
   const onEvaluation = async () => {
     ideaStore.setIdea(idea!);
+    demandStore.setIdea(idea!);
 
     setLoadingEval(true);
 
     await ideaStore.evaluateIdea();
 
-    const evaluation = ideaStore.evaluation;
+    await demandStore.evaluateDemand();
 
-    console.log(evaluation?.viable);
-
-    console.log(evaluation?.viabilityWhy);
-
-    console.log(evaluation?.realization);
-
-    console.log(evaluation?.improvements);
-
-    console.log(evaluation?.problem);
+    setEvaluation(ideaStore.evaluation);
 
     setLoadingEval(false);
   };
+
+  const onIdeaChange = (value: string) => {
+    setIdea(value);
+
+    if (ideaStore.evaluation) {
+      ideaStore.setEvaluation(undefined);
+    }
+  };
+
+  useEffect(() => {
+    setEvaluation(ideaStore.evaluation);
+  }, [ideaStore.evaluation]);
 
   return (
     <Box
@@ -76,14 +85,13 @@ const IdeaForm = () => {
           label="Describe your idea"
           minRows={3}
           placeholder="We should build a restaurant"
-          onChange={(e) => setIdea(e.target.value)}
+          onChange={(e) => onIdeaChange(e.target.value)}
+          disabled={loadingEval}
         ></TextInput>
         <Button
           onClick={() => onEvaluation()}
           disabled={
-            idea === undefined ||
-            loadingEval ||
-            ideaStore.evaluation !== undefined
+            idea === undefined || loadingEval || evaluation !== undefined
           }
           variant={"contained"}
           color={"primary"}
@@ -113,4 +121,4 @@ const IdeaForm = () => {
   );
 };
 
-export default IdeaForm;
+export default observer(IdeaForm);
