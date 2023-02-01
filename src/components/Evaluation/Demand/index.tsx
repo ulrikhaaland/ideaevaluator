@@ -47,7 +47,7 @@ const DemandEvaluation = (props: ComponentProps) => {
     return (
       <Box>
         <Typography variant="h6" style={{ color: "black" }}>
-          This idea is not viable:
+          This product idea has no demand:
         </Typography>
         <Typography variant="body1" style={{ color: "black" }}>
           {evaluation?.demandWhy}
@@ -79,13 +79,16 @@ const DemandEvaluation = (props: ComponentProps) => {
           />
         )}
         {evaluation?.trend && (
-          <EvaluationItem title="Trend" content={evaluation?.trend} />
+          <EvaluationItem
+            title="Trend"
+            content={evaluation?.trend}
+            last={true}
+          />
         )}
         {evaluation?.problem && (
           <EvaluationItem
             title="Biggest Problem"
             content={evaluation?.problem}
-            last={true}
           />
         )}
       </Box>

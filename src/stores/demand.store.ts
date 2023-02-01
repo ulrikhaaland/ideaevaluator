@@ -61,15 +61,9 @@ export default class DemandStore {
 
       /// trend
       const prompt3 = this.addIdeaToPrompt(
-        "Is there a growing market trend for this product idea? Use google trends API as a reference."
+        "Tell me about the trend of this product idea using google trends API as a reference. Omit the answering with a yes."
       );
       trend = await completion(prompt3);
-
-      /// Problem
-      const prompt4 = this.addIdeaToPrompt(
-        "Are there any problems with the demand for this product idea? If so, make the case for the biggest one."
-      );
-      problem = await completion(prompt4);
     }
 
     const evaluation = {
@@ -80,12 +74,12 @@ export default class DemandStore {
       problem: problem,
     };
 
-    this.evaluation = evaluation;
+    this.setEvaluation(evaluation);
   };
 
   async preEvaluateDemand(): Promise<boolean> {
     const prompt = this.addIdeaToPrompt(
-      "Is there a demand for this product idea? Answer with a yes or no."
+      "Is there a demand for this product idea? Be extremely realistic. Answer with a yes or no."
     );
 
     const result = await completion(prompt);

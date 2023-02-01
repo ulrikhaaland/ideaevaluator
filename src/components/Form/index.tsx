@@ -28,7 +28,7 @@ const IdeaForm = () => {
 
     await ideaStore.evaluateIdea();
 
-    await demandStore.evaluateDemand();
+    // await demandStore.evaluateDemand();
 
     setEvaluation(ideaStore.evaluation);
 
@@ -87,6 +87,11 @@ const IdeaForm = () => {
           placeholder="We should build a restaurant"
           onChange={(e) => onIdeaChange(e.target.value)}
           disabled={loadingEval}
+          onKeyPress={(e) => {
+            if (e.key === "Enter") {
+              onEvaluation();
+            }
+          }}
         ></TextInput>
         <Button
           onClick={() => onEvaluation()}

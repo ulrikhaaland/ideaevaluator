@@ -1,13 +1,18 @@
 import { makeObservable, observable, action } from "mobx";
 import { createContext } from "react";
 import { completion } from "../data/OpenAI";
+import {
+  EvaluationResponse,
+  EVALUATION_INTERPRETATION,
+  handleEvaluationResponse,
+} from "../utils/response.util";
 
 export type IdeaEval = {
   viable: boolean;
-  viabilityWhy: string;
-  improvements?: string;
-  realization?: string;
-  problem?: string;
+  viabilityWhy: EvaluationResponse;
+  improvements?: EvaluationResponse | undefined;
+  realization?: EvaluationResponse | undefined;
+  problem?: EvaluationResponse | undefined;
 };
 
 export default class IdeaStore {
@@ -48,54 +53,76 @@ export default class IdeaStore {
   evaluateIdea = async () => {
     const viable = await this.preEvaluateIdea();
 
-    let viabilityWhy: string | undefined;
-    let improvements: string | undefined;
-    let realization: string | undefined;
-    let problem: string | undefined;
+    let viabilityWhy: EvaluationResponse;
+    let improvements: EvaluationResponse | undefined;
+    let realization: EvaluationResponse | undefined;
+    let problem: EvaluationResponse | undefined;
 
     if (!viable) {
-      const prompt = this.addIdeaToPrompt(
+      const prompt = this.promptPrefixAndSuffix(
         "Why is the product idea not viable?"
       );
-      viabilityWhy = await completion(prompt);
+      const response = await completion(prompt);
+
+      viabilityWhy = {
+        response: response!,
+        interpretation: EVALUATION_INTERPRETATION.NEGATIVE,
+      };
     } else {
       /// Viability Why
-      const prompt = this.addIdeaToPrompt("Why is the product idea viable?");
-      viabilityWhy = await completion(prompt);
-
-      /// Improvements
-      const prompt2 = this.addIdeaToPrompt(
-        "What improvements can be made to the product idea? Answer with a list of the five most relevant improvements."
+      const prompt = this.promptPrefixAndSuffix(
+        "Why is the product idea viable?"
       );
-      improvements = await completion(prompt2);
+      const response = await completion(prompt);
+
+      viabilityWhy = handleEvaluationResponse(response!);
+      /// Improvements
+      const prompt2 = this.promptPrefixAndSuffix(
+        "What improvements can be made to the product idea? Answer with a list of the five most relevant improvements.",
+        false
+      );
+
+      const response2 = await completion(prompt2);
+
+      improvements = {
+        response: response2!,
+        interpretation: EVALUATION_INTERPRETATION.POSITIVE,
+      };
 
       /// Realization
-      const prompt3 = this.addIdeaToPrompt(
+      const prompt3 = this.promptPrefixAndSuffix(
         "How can the product idea be realized?"
       );
-      realization = await completion(prompt3);
+
+      const response3 = await completion(prompt3);
+
+      realization = handleEvaluationResponse(response3!);
 
       /// Problem
-      const prompt4 = this.addIdeaToPrompt(
+      const prompt4 = this.promptPrefixAndSuffix(
         "Are there any problems with this idea? If so, make the case for the biggest one."
       );
-      problem = await completion(prompt4);
+
+      const response4 = await completion(prompt4);
+
+      problem = handleEvaluationResponse(response4!);
     }
 
     const evaluation = {
       viable: viable,
-      viabilityWhy: viabilityWhy ?? "",
+      viabilityWhy: viabilityWhy,
       improvements: improvements,
       realization: realization,
       problem: problem,
     };
 
-    this.evaluation = evaluation;
+    this.setEvaluation(evaluation);
   };
 
   async preEvaluateIdea(): Promise<boolean> {
-    const prompt = this.addIdeaToPrompt(
-      "Is this a viable product idea? Answer with a yes or no."
+    const prompt = this.promptPrefixAndSuffix(
+      "Is this a viable product idea? Answer with a yes or no.",
+      false
     );
 
     const result = await completion(prompt);
@@ -105,13 +132,22 @@ export default class IdeaStore {
     } else if (result?.includes("No")) {
       return false;
     } else {
-      console.log("stop");
-      return false;
+      throw new Error("Invalid PreEvaluationOFIDEA");
     }
   }
 
-  addIdeaToPrompt(prompt: string): string {
-    return "The product idea: " + this.idea! + "\n \n " + prompt;
+  promptPrefixAndSuffix(prompt: string, includeSuffix = true): string {
+    const prefix = "The product idea: ";
+
+    const idea = this.idea! + "\n \n ";
+
+    const suffix = `\n \n Finally, at the end of your response, characterize it with either "Positive.", "Negative.", or "Neutral."`;
+
+    if (!includeSuffix) {
+      return prefix + idea + prompt;
+    } else {
+      return prefix + idea + prompt + suffix;
+    }
   }
 
   async ideaCompletion() {

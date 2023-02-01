@@ -9,6 +9,7 @@ import {
 } from "react";
 import { Category } from "../../../model/categories";
 import { useStore } from "../../../stores";
+import { EVALUATION_INTERPRETATION } from "../../../utils/response.util";
 import ExpandableCard from "../../ExpandableCard";
 import EvaluationItem from "../EvaluationItem";
 
@@ -48,14 +49,13 @@ const IdeaEvaluation = (props: ComponentProps) => {
 
   const getNotViableContent = (): ReactElement => {
     return (
-      <Box>
-        <Typography variant="h6" style={{ color: "black" }}>
-          This idea is not viable:
-        </Typography>
-        <Typography variant="body1" style={{ color: "black" }}>
-          {evaluation?.viabilityWhy}
-        </Typography>
-      </Box>
+      <EvaluationItem
+        title="This idea is not viable"
+        content={evaluation?.viabilityWhy.response!}
+        first={true}
+        last={true}
+        interpretation={evaluation?.viabilityWhy.interpretation}
+      />
     );
   };
 
@@ -102,27 +102,32 @@ const IdeaEvaluation = (props: ComponentProps) => {
         {evaluation?.viabilityWhy && (
           <EvaluationItem
             title="Viability"
-            content={evaluation?.viabilityWhy}
+            content={evaluation?.viabilityWhy.response!}
+            interpretation={evaluation?.viabilityWhy.interpretation}
             first={true}
           />
         )}
 
-        {evaluation?.improvements && evaluation?.improvements !== "" && (
-          <EvaluationItem
-            title="Improvements"
-            content={getImprovements(evaluation?.improvements)}
-          />
-        )}
+        {evaluation?.improvements &&
+          evaluation?.improvements.response !== "" && (
+            <EvaluationItem
+              title="Improvements"
+              content={getImprovements(evaluation?.improvements.response)}
+              interpretation={evaluation?.improvements.interpretation}
+            />
+          )}
         {evaluation?.realization && (
           <EvaluationItem
             title="Realization"
-            content={evaluation?.realization}
+            content={evaluation?.realization.response}
+            interpretation={evaluation?.realization.interpretation}
           />
         )}
         {evaluation?.problem && (
           <EvaluationItem
             title="Problem"
-            content={evaluation?.problem}
+            content={evaluation?.problem.response}
+            interpretation={evaluation?.problem.interpretation}
             last={true}
           />
         )}
