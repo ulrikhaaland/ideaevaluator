@@ -9,6 +9,7 @@ import {
 } from "react";
 import { Category } from "../../../model/categories";
 import { useStore } from "../../../stores";
+import { EVALUATION_INTERPRETATION } from "../../../utils/response.util";
 import ExpandableCard from "../../ExpandableCard";
 import EvaluationItem from "../EvaluationItem";
 
@@ -27,9 +28,39 @@ const DemandEvaluation = (props: ComponentProps) => {
 
   const { evaluation } = demandStore;
 
+  const [interpretations, setInterpretations] = useState<
+    EVALUATION_INTERPRETATION[]
+  >([]);
+
+  const handleInterpretations = () => {
+    const interpretations: EVALUATION_INTERPRETATION[] = [];
+
+    if (evaluation?.demandWhy?.interpretation) {
+      interpretations.push(evaluation?.demandWhy?.interpretation);
+    }
+
+    if (evaluation?.marketSize?.interpretation) {
+      interpretations.push(evaluation?.marketSize?.interpretation);
+    }
+
+    if (evaluation?.trend?.interpretation) {
+      interpretations.push(evaluation?.trend?.interpretation);
+    }
+
+    if (evaluation?.problem?.interpretation) {
+      interpretations.push(evaluation?.problem?.interpretation);
+    }
+
+    setInterpretations(interpretations);
+  };
+
   useEffect(() => {
     if (evaluation) {
       setOpen(true);
+      handleInterpretations();
+    } else {
+      setOpen(false);
+      setInterpretations([]);
     }
   }, [evaluation]);
 
@@ -45,14 +76,13 @@ const DemandEvaluation = (props: ComponentProps) => {
 
   const getNotViableContent = (): ReactElement => {
     return (
-      <Box>
-        <Typography variant="h6" style={{ color: "black" }}>
-          This product idea has no demand:
-        </Typography>
-        <Typography variant="body1" style={{ color: "black" }}>
-          {evaluation?.demandWhy}
-        </Typography>
-      </Box>
+      <EvaluationItem
+        title="This idea is not viable"
+        content={evaluation?.demandWhy!.response!}
+        first={true}
+        last={true}
+        interpretation={evaluation?.demandWhy!.interpretation}
+      />
     );
   };
 
@@ -67,28 +97,32 @@ const DemandEvaluation = (props: ComponentProps) => {
         {evaluation?.demanded && (
           <EvaluationItem
             title="Demand"
-            content={evaluation?.demandWhy}
+            content={evaluation?.demandWhy?.response!}
+            interpretation={evaluation?.demandWhy?.interpretation}
             first={true}
           />
         )}
 
-        {evaluation?.marketSize && evaluation?.marketSize !== "" && (
+        {evaluation?.marketSize && evaluation?.marketSize.response !== "" && (
           <EvaluationItem
             title="Market Size"
-            content={evaluation?.marketSize}
+            content={evaluation?.marketSize.response!}
+            interpretation={evaluation?.marketSize.interpretation}
           />
         )}
         {evaluation?.trend && (
           <EvaluationItem
             title="Trend"
-            content={evaluation?.trend}
+            content={evaluation?.trend.response}
+            interpretation={evaluation?.trend.interpretation}
             last={true}
           />
         )}
         {evaluation?.problem && (
           <EvaluationItem
             title="Biggest Problem"
-            content={evaluation?.problem}
+            content={evaluation?.problem.response}
+            interpretation={evaluation?.problem.interpretation}
           />
         )}
       </Box>
@@ -107,6 +141,7 @@ const DemandEvaluation = (props: ComponentProps) => {
         isExpandable={evaluation === undefined ? false : true}
         open={!evaluation ? false : open}
         viable={evaluation?.demanded}
+        interpretations={interpretations}
         setOpen={(open) => {
           if (!evaluation) return;
           else setOpen(open);

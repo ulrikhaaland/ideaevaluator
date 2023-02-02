@@ -1,6 +1,9 @@
 import { Typography, Divider, Box } from "@mui/material";
 import { ReactElement } from "react";
-import { EVALUATION_INTERPRETATION } from "../../utils/response.util";
+import {
+  EVALUATION_INTERPRETATION,
+  getInterpretationColor,
+} from "../../utils/response.util";
 import SentimentDissatisfiedIcon from "@mui/icons-material/SentimentDissatisfied";
 import SentimentNeutralIcon from "@mui/icons-material/SentimentNeutral";
 import SentimentSatisfiedIcon from "@mui/icons-material/SentimentSatisfied";
@@ -14,7 +17,7 @@ interface ComponentProps {
 }
 
 const EvaluationItem = (props: ComponentProps) => {
-  const { title, content, first, last } = props;
+  const { title, content, first, last, interpretation } = props;
 
   return (
     <div>
@@ -26,11 +29,14 @@ const EvaluationItem = (props: ComponentProps) => {
       >
         <Typography
           variant="h6"
-          style={{ color: "black", marginTop: first ? "" : "12px" }}
+          style={{
+            color: "black",
+            marginTop: first ? "" : "12px",
+          }}
         >
           {title}
         </Typography>
-        {props.interpretation === EVALUATION_INTERPRETATION.NEGATIVE && (
+        {interpretation === EVALUATION_INTERPRETATION.NEGATIVE && (
           <SentimentDissatisfiedIcon
             style={{
               color: "red",
@@ -39,7 +45,7 @@ const EvaluationItem = (props: ComponentProps) => {
             }}
           />
         )}
-        {props.interpretation === EVALUATION_INTERPRETATION.NEUTRAL && (
+        {interpretation === EVALUATION_INTERPRETATION.NEUTRAL && (
           <SentimentNeutralIcon
             style={{
               color: "orange",
@@ -48,7 +54,7 @@ const EvaluationItem = (props: ComponentProps) => {
             }}
           />
         )}
-        {props.interpretation === EVALUATION_INTERPRETATION.POSITIVE && (
+        {interpretation === EVALUATION_INTERPRETATION.POSITIVE && (
           <SentimentSatisfiedIcon
             style={{
               color: "green",

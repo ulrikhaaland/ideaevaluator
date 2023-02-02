@@ -1,13 +1,18 @@
 import { makeObservable, observable, action } from "mobx";
 import { createContext } from "react";
 import { completion } from "../data/OpenAI";
+import {
+  EvaluationResponse,
+  EVALUATION_INTERPRETATION,
+  handleEvaluationResponse,
+} from "../utils/response.util";
 
 export type DemandEval = {
   demanded: boolean;
-  demandWhy: string;
-  marketSize?: string;
-  trend?: string;
-  problem?: string;
+  demandWhy: EvaluationResponse | undefined;
+  marketSize?: EvaluationResponse | undefined;
+  trend?: EvaluationResponse | undefined;
+  problem?: EvaluationResponse | undefined;
 };
 
 export default class DemandStore {
@@ -36,34 +41,46 @@ export default class DemandStore {
   evaluateDemand = async () => {
     const demanded = await this.preEvaluateDemand();
 
-    let demandWhy: string | undefined;
-    let marketSize: string | undefined;
-    let trend: string | undefined;
-    let problem: string | undefined;
+    let demandWhy: EvaluationResponse | undefined;
+    let marketSize: EvaluationResponse | undefined;
+    let trend: EvaluationResponse | undefined;
+    let problem: EvaluationResponse | undefined;
 
     if (!demanded) {
-      const prompt = this.addIdeaToPrompt(
-        "Why is there no demand for this product idea?"
+      const prompt = this.promptPrefixAndSuffix(
+        "Why is there no demand for this product idea?",
+        false
       );
-      demandWhy = await completion(prompt);
+      const response = await completion(prompt);
+
+      demandWhy = {
+        response: response!,
+        interpretation: EVALUATION_INTERPRETATION.NEGATIVE,
+      };
     } else {
       /// Viability Why
-      const prompt = this.addIdeaToPrompt(
+      const prompt = this.promptPrefixAndSuffix(
         "Why is there demand for this product idea?"
       );
-      demandWhy = await completion(prompt);
+      const response = await completion(prompt);
+
+      demandWhy = handleEvaluationResponse(response!);
 
       /// marketSize
-      const prompt2 = this.addIdeaToPrompt(
+      const prompt2 = this.promptPrefixAndSuffix(
         "What is the market size for this product idea in 2023? Be specific and include numbers."
       );
-      marketSize = await completion(prompt2);
+      const response2 = await completion(prompt2);
+
+      marketSize = handleEvaluationResponse(response2!);
 
       /// trend
-      const prompt3 = this.addIdeaToPrompt(
+      const prompt3 = this.promptPrefixAndSuffix(
         "Tell me about the trend of this product idea using google trends API as a reference. Omit the answering with a yes."
       );
-      trend = await completion(prompt3);
+      const response3 = await completion(prompt3);
+
+      trend = handleEvaluationResponse(response3!);
     }
 
     const evaluation = {
@@ -78,8 +95,8 @@ export default class DemandStore {
   };
 
   async preEvaluateDemand(): Promise<boolean> {
-    const prompt = this.addIdeaToPrompt(
-      "Is there a demand for this product idea? Be extremely realistic. Answer with a yes or no."
+    const prompt = this.promptPrefixAndSuffix(
+      "Is there any demand for this product idea? Be extremely realistic. Answer with a yes or no."
     );
 
     const result = await completion(prompt);
@@ -94,7 +111,17 @@ export default class DemandStore {
     }
   }
 
-  addIdeaToPrompt(prompt: string): string {
-    return "The product idea: " + this.idea! + "\n \n " + prompt;
+  promptPrefixAndSuffix(prompt: string, includeSuffix = true): string {
+    const prefix = "The product idea: ";
+
+    const idea = this.idea! + "\n \n ";
+
+    const suffix = `\n \n Finally, at the end of your response, characterize it with either "Positive.", "Negative.", or "Neutral."`;
+
+    if (!includeSuffix) {
+      return prefix + idea + prompt;
+    } else {
+      return prefix + idea + prompt + suffix;
+    }
   }
 }

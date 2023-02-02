@@ -36,3 +36,17 @@ function splitOnNextToLastDot(str: string): string[] {
   let splitIndex = str.lastIndexOf(".", str.lastIndexOf(".") - 1);
   return [str.slice(0, splitIndex), str.slice(splitIndex + 1)];
 }
+
+// https://colorpalettes.net/color-palette-2367/
+export const getInterpretationColor = (
+  interpretation: EVALUATION_INTERPRETATION
+) => {
+  switch (interpretation) {
+    case EVALUATION_INTERPRETATION.POSITIVE:
+      return "rgb(128, 226, 126)";
+    case EVALUATION_INTERPRETATION.NEGATIVE:
+      return "rgb(255, 121, 97)";
+    case EVALUATION_INTERPRETATION.NEUTRAL:
+      return "rgb(255, 204, 0)";
+  }
+};

@@ -13,6 +13,8 @@ export type IdeaEval = {
   improvements?: EvaluationResponse | undefined;
   realization?: EvaluationResponse | undefined;
   problem?: EvaluationResponse | undefined;
+  // Is this idea innovative?
+  // innovation?: EvaluationResponse | undefined;
 };
 
 export default class IdeaStore {

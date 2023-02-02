@@ -1,9 +1,16 @@
 import { Box, Divider, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import "./index.css";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { Category } from "../../model/categories";
+import {
+  EVALUATION_INTERPRETATION,
+  getInterpretationColor,
+} from "../../utils/response.util";
+import SentimentDissatisfiedIcon from "@mui/icons-material/SentimentDissatisfied";
+import SentimentNeutralIcon from "@mui/icons-material/SentimentNeutral";
+import SentimentSatisfiedIcon from "@mui/icons-material/SentimentSatisfied";
 
 interface ComponentProps {
   category: Category;
@@ -12,6 +19,7 @@ interface ComponentProps {
   isExpandable?: boolean;
   children?: any;
   viable?: boolean;
+  interpretations?: EVALUATION_INTERPRETATION[];
 }
 
 const ExpandableCard = (props: ComponentProps) => {
@@ -29,6 +37,91 @@ const ExpandableCard = (props: ComponentProps) => {
   useEffect(() => {
     setOpen(props.open);
   }, [props.open]);
+
+  const getInterpretations = (): ReactElement => {
+    const children: ReactElement[] = [];
+
+    const positiveLength =
+      props.interpretations?.filter(
+        (i) => i === EVALUATION_INTERPRETATION.POSITIVE
+      ).length ?? 0;
+    const negativeLength =
+      props.interpretations?.filter(
+        (i) => i === EVALUATION_INTERPRETATION.NEGATIVE
+      ).length ?? 0;
+    const neutralLength =
+      props.interpretations?.filter(
+        (i) => i === EVALUATION_INTERPRETATION.NEUTRAL
+      ).length ?? 0;
+
+    const totalLength = positiveLength + negativeLength + neutralLength;
+
+    const width = 100 / totalLength;
+
+    for (let i = 0; i < positiveLength; i++) {
+      const container = (
+        <div
+          style={{
+            height: "50px",
+            width: width + "%",
+            background: getInterpretationColor(
+              EVALUATION_INTERPRETATION.POSITIVE
+            ),
+          }}
+        />
+      );
+
+      children.push(container);
+    }
+
+    for (let i = 0; i < neutralLength; i++) {
+      const container = (
+        <div
+          style={{
+            height: "50px",
+            width: width + "%",
+            background: getInterpretationColor(
+              EVALUATION_INTERPRETATION.NEUTRAL
+            ),
+          }}
+        />
+      );
+
+      children.push(container);
+    }
+
+    for (let i = 0; i < negativeLength; i++) {
+      const container = (
+        <div
+          style={{
+            height: "50px",
+            width: width + "%",
+            background: getInterpretationColor(
+              EVALUATION_INTERPRETATION.NEGATIVE
+            ),
+          }}
+        />
+      );
+
+      children.push(container);
+    }
+
+    return (
+      <Box
+        sx={{
+          top: "0",
+          left: "0",
+          position: "absolute",
+          height: "50px",
+          width: "100%",
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        {children}
+      </Box>
+    );
+  };
 
   return (
     <div
@@ -48,21 +141,7 @@ const ExpandableCard = (props: ComponentProps) => {
         }}
         onClick={expand}
       >
-        <Box
-          sx={{
-            top: "0",
-            left: "0",
-            position: "absolute",
-            height: "50px",
-            width: "100%",
-            background:
-              viable !== undefined
-                ? viable
-                  ? "rgb(126, 195, 132, 0.5)"
-                  : "rgb(255,0,0, 0.5)"
-                : "",
-          }}
-        ></Box>
+        {getInterpretations()}
         <Box
           sx={{
             justifyContent: "space-between",

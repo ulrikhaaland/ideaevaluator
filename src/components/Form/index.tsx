@@ -28,7 +28,7 @@ const IdeaForm = () => {
 
     await ideaStore.evaluateIdea();
 
-    // await demandStore.evaluateDemand();
+    if (ideaStore.evaluation?.viable) await demandStore.evaluateDemand();
 
     setEvaluation(ideaStore.evaluation);
 
@@ -46,6 +46,22 @@ const IdeaForm = () => {
   useEffect(() => {
     setEvaluation(ideaStore.evaluation);
   }, [ideaStore.evaluation]);
+
+  async function writeToJson() {
+    const response = await fetch("http://localhost:8000/savedata", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name: "John", age: 30 }),
+    });
+
+    console.log(response.body);
+  }
+
+  useEffect(() => {
+    writeToJson();
+  }, []);
 
   return (
     <Box
@@ -88,7 +104,7 @@ const IdeaForm = () => {
           onChange={(e) => onIdeaChange(e.target.value)}
           disabled={loadingEval}
           onKeyPress={(e) => {
-            if (e.key === "Enter") {
+            if (e.key === "Enter" && !loadingEval && evaluation === undefined) {
               onEvaluation();
             }
           }}

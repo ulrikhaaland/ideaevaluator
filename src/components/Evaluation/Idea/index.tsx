@@ -31,9 +31,39 @@ const IdeaEvaluation = (props: ComponentProps) => {
   const [, updateState] = useState<any>();
   const forceUpdate = useCallback(() => updateState({}), []);
 
+  const [interpretations, setInterpretations] = useState<
+    EVALUATION_INTERPRETATION[]
+  >([]);
+
+  const handleInterpretations = () => {
+    const interpretations: EVALUATION_INTERPRETATION[] = [];
+
+    if (evaluation?.viabilityWhy?.interpretation) {
+      interpretations.push(evaluation?.viabilityWhy?.interpretation);
+    }
+
+    if (evaluation?.realization?.interpretation) {
+      interpretations.push(evaluation?.realization?.interpretation);
+    }
+
+    if (evaluation?.improvements?.interpretation) {
+      interpretations.push(evaluation?.improvements?.interpretation);
+    }
+
+    if (evaluation?.problem?.interpretation) {
+      interpretations.push(evaluation?.problem?.interpretation);
+    }
+
+    setInterpretations(interpretations);
+  };
+
   useEffect(() => {
     if (evaluation) {
       setOpen(true);
+      handleInterpretations();
+    } else {
+      setOpen(false);
+      setInterpretations([]);
     }
   }, [evaluation]);
 
@@ -147,6 +177,7 @@ const IdeaEvaluation = (props: ComponentProps) => {
         isExpandable={evaluation === undefined ? false : true}
         open={!evaluation ? false : open}
         viable={evaluation?.viable}
+        interpretations={interpretations}
         setOpen={(open) => {
           if (!evaluation) return;
           else setOpen(open);
