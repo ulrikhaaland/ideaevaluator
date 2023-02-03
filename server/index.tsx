@@ -17,10 +17,16 @@ app.get("/", (req: Request, res: Response) => {
 
 const port = process.env.PORT || 8000;
 
-app.post("/savedata", (req: Request, res: Response) => {
-  console.log(req.body.name);
+app.post("/ideadata", (req: Request, res: Response) => {
+  const data: {}[] = req.body;
 
-  res.send("<h1>Hello World From the Typescript Server!</h1>");
+  for (let i = 0; i < data.length; i++) {
+    const element = data[i];
+
+    const elementData = JSON.stringify(element);
+
+    fs.appendFileSync("idea-data.jsonl", elementData);
+  }
 });
 
 function writeJson() {
@@ -29,11 +35,11 @@ function writeJson() {
     age: 23,
     gender: "Male",
     department: "English",
-    car: "Honda",
+    car: "Toyota",
   };
 
   let data = JSON.stringify(student);
-  fs.writeFileSync("student-2.json", data);
+  fs.appendFileSync("student-2.json", data);
 }
 
 app.listen(port, () => {

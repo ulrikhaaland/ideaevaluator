@@ -55,6 +55,8 @@ export default class IdeaStore {
   evaluateIdea = async () => {
     const viable = await this.preEvaluateIdea();
 
+    const trainingData: {}[] = [];
+
     let viabilityWhy: EvaluationResponse;
     let improvements: EvaluationResponse | undefined;
     let realization: EvaluationResponse | undefined;
@@ -70,6 +72,11 @@ export default class IdeaStore {
         response: response!,
         interpretation: EVALUATION_INTERPRETATION.NEGATIVE,
       };
+
+      trainingData.push({
+        prompt: prompt,
+        completion: response,
+      });
     } else {
       /// Viability Why
       const prompt = this.promptPrefixAndSuffix(
@@ -78,6 +85,11 @@ export default class IdeaStore {
       const response = await completion(prompt);
 
       viabilityWhy = handleEvaluationResponse(response!);
+
+      trainingData.push({
+        prompt: prompt,
+        completion: response,
+      });
       /// Improvements
       const prompt2 = this.promptPrefixAndSuffix(
         "What improvements can be made to the product idea? Answer with a list of the five most relevant improvements.",
@@ -91,6 +103,11 @@ export default class IdeaStore {
         interpretation: EVALUATION_INTERPRETATION.POSITIVE,
       };
 
+      trainingData.push({
+        prompt: prompt2,
+        completion: response2,
+      });
+
       /// Realization
       const prompt3 = this.promptPrefixAndSuffix(
         "How can the product idea be realized?"
@@ -100,6 +117,10 @@ export default class IdeaStore {
 
       realization = handleEvaluationResponse(response3!);
 
+      trainingData.push({
+        prompt: prompt3,
+        completion: response3,
+      });
       /// Problem
       const prompt4 = this.promptPrefixAndSuffix(
         "Are there any problems with this idea? If so, make the case for the biggest one."
@@ -108,6 +129,11 @@ export default class IdeaStore {
       const response4 = await completion(prompt4);
 
       problem = handleEvaluationResponse(response4!);
+
+      trainingData.push({
+        prompt: prompt4,
+        completion: response4,
+      });
     }
 
     const evaluation = {
@@ -119,6 +145,8 @@ export default class IdeaStore {
     };
 
     this.setEvaluation(evaluation);
+
+    saveTrainingData(trainingData);
   };
 
   async preEvaluateIdea(): Promise<boolean> {
@@ -158,4 +186,16 @@ export default class IdeaStore {
 
     this.genIdea = result;
   }
+}
+
+function saveTrainingData(trainingData: {}[]) {
+  fetch("http://localhost:8000/ideadata", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(trainingData),
+  }).then((response) => {
+    console.log(response);
+  });
 }

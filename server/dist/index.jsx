@@ -15,9 +15,13 @@ app.get("/", (req, res) => {
     res.send("<h1>Hello World From the Typescript Server!</h1>");
 });
 const port = process.env.PORT || 8000;
-app.post("/savedata", (req, res) => {
-    console.log(req.body.name);
-    res.send("<h1>Hello World From the Typescript Server!</h1>");
+app.post("/ideadata", (req, res) => {
+    const data = req.body;
+    for (let i = 0; i < data.length; i++) {
+        const element = data[i];
+        const elementData = JSON.stringify(element);
+        fs_1.default.appendFileSync("idea-data.jsonl", elementData);
+    }
 });
 function writeJson() {
     let student = {
@@ -25,10 +29,10 @@ function writeJson() {
         age: 23,
         gender: "Male",
         department: "English",
-        car: "Honda",
+        car: "Toyota",
     };
     let data = JSON.stringify(student);
-    fs_1.default.writeFileSync("student-2.json", data);
+    fs_1.default.appendFileSync("student-2.json", data);
 }
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);

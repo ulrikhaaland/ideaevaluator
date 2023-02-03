@@ -28,7 +28,7 @@ const IdeaForm = () => {
 
     await ideaStore.evaluateIdea();
 
-    if (ideaStore.evaluation?.viable) await demandStore.evaluateDemand();
+    // if (ideaStore.evaluation?.viable) await demandStore.evaluateDemand();
 
     setEvaluation(ideaStore.evaluation);
 
@@ -58,10 +58,6 @@ const IdeaForm = () => {
 
     console.log(response.body);
   }
-
-  useEffect(() => {
-    writeToJson();
-  }, []);
 
   return (
     <Box
