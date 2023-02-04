@@ -22,7 +22,7 @@ interface ComponentProps {
 const DemandEvaluation = (props: ComponentProps) => {
   const { category } = props;
 
-  const { ideaStore, demandStore } = useStore();
+  const { demandStore } = useStore();
 
   const [open, setOpen] = useState(props.open);
 
@@ -77,7 +77,7 @@ const DemandEvaluation = (props: ComponentProps) => {
   const getNotViableContent = (): ReactElement => {
     return (
       <EvaluationItem
-        title="This idea is not viable"
+        title="Not in demand"
         content={evaluation?.demandWhy!.response!}
         first={true}
         last={true}

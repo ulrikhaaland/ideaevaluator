@@ -23,6 +23,14 @@ app.post("/ideadata", (req, res) => {
         fs_1.default.appendFileSync("idea-data.jsonl", elementData);
     }
 });
+app.post("/demanddata", (req, res) => {
+    const data = req.body;
+    for (let i = 0; i < data.length; i++) {
+        const element = data[i];
+        const elementData = JSON.stringify(element);
+        fs_1.default.appendFileSync("demand-data.jsonl", elementData);
+    }
+});
 function writeJson() {
     let student = {
         name: "Mike",

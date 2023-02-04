@@ -1,11 +1,11 @@
 import { makeObservable, observable, action } from "mobx";
-import { createContext } from "react";
 import { completion } from "../data/OpenAI";
 import {
   EvaluationResponse,
   EVALUATION_INTERPRETATION,
   handleEvaluationResponse,
 } from "../utils/response.util";
+import { EvaluationStore } from "./demand.store";
 
 export type IdeaEval = {
   viable: boolean;
@@ -17,24 +17,21 @@ export type IdeaEval = {
   // innovation?: EvaluationResponse | undefined;
 };
 
-export default class IdeaStore {
+export default class IdeaStore extends EvaluationStore {
   genIdea?: string;
-  idea?: string;
   whatIs?: string;
   whatShouldBe?: string;
   evaluation?: IdeaEval;
 
   constructor() {
+    super();
     makeObservable(this, {
       genIdea: observable,
-      idea: observable,
       evaluation: observable,
+      setEvaluation: action,
       ideaCompletion: action,
       setProblem: action,
-      evaluateIdea: action,
       preEvaluateIdea: action,
-      setIdea: action,
-      setEvaluation: action,
     });
   }
 
@@ -44,15 +41,11 @@ export default class IdeaStore {
     this.ideaCompletion();
   };
 
-  setIdea = (idea: string) => {
-    this.idea = idea;
-  };
-
-  setEvaluation = (evaluation: IdeaEval | undefined) => {
+  setEvaluation(evaluation: IdeaEval | undefined) {
     this.evaluation = evaluation;
-  };
+  }
 
-  evaluateIdea = async () => {
+  evaluate = async () => {
     const viable = await this.preEvaluateIdea();
 
     const trainingData: {}[] = [];
@@ -63,7 +56,7 @@ export default class IdeaStore {
     let problem: EvaluationResponse | undefined;
 
     if (!viable) {
-      const prompt = this.promptPrefixAndSuffix(
+      const prompt = super.promptPreAndSuffix(
         "Why is the product idea not viable?"
       );
       const response = await completion(prompt);
@@ -79,7 +72,7 @@ export default class IdeaStore {
       });
     } else {
       /// Viability Why
-      const prompt = this.promptPrefixAndSuffix(
+      const prompt = super.promptPreAndSuffix(
         "Why is the product idea viable?"
       );
       const response = await completion(prompt);
@@ -90,8 +83,9 @@ export default class IdeaStore {
         prompt: prompt,
         completion: response,
       });
+
       /// Improvements
-      const prompt2 = this.promptPrefixAndSuffix(
+      const prompt2 = super.promptPreAndSuffix(
         "What improvements can be made to the product idea? Answer with a list of the five most relevant improvements.",
         false
       );
@@ -109,7 +103,7 @@ export default class IdeaStore {
       });
 
       /// Realization
-      const prompt3 = this.promptPrefixAndSuffix(
+      const prompt3 = super.promptPreAndSuffix(
         "How can the product idea be realized?"
       );
 
@@ -122,7 +116,7 @@ export default class IdeaStore {
         completion: response3,
       });
       /// Problem
-      const prompt4 = this.promptPrefixAndSuffix(
+      const prompt4 = super.promptPreAndSuffix(
         "Are there any problems with this idea? If so, make the case for the biggest one."
       );
 
@@ -146,11 +140,11 @@ export default class IdeaStore {
 
     this.setEvaluation(evaluation);
 
-    saveTrainingData(trainingData);
+    super.saveDataForTraining(trainingData, "idea");
   };
 
   async preEvaluateIdea(): Promise<boolean> {
-    const prompt = this.promptPrefixAndSuffix(
+    const prompt = super.promptPreAndSuffix(
       "Is this a viable product idea? Answer with a yes or no.",
       false
     );
@@ -166,36 +160,10 @@ export default class IdeaStore {
     }
   }
 
-  promptPrefixAndSuffix(prompt: string, includeSuffix = true): string {
-    const prefix = "The product idea: ";
-
-    const idea = this.idea! + "\n \n ";
-
-    const suffix = `\n \n Finally, at the end of your response, characterize it with either "Positive.", "Negative.", or "Neutral."`;
-
-    if (!includeSuffix) {
-      return prefix + idea + prompt;
-    } else {
-      return prefix + idea + prompt + suffix;
-    }
-  }
-
   async ideaCompletion() {
     const prompt = `A problem is a conflict between what is and what should be. What is: ${this.whatIs}. What should be: ${this.whatShouldBe}. An idea is a plan for how to bridge the grap between what is and what shold be. Bridge the gap!`;
     const result = await completion(prompt);
 
     this.genIdea = result;
   }
-}
-
-function saveTrainingData(trainingData: {}[]) {
-  fetch("http://localhost:8000/ideadata", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(trainingData),
-  }).then((response) => {
-    console.log(response);
-  });
 }

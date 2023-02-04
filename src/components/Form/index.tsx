@@ -26,9 +26,9 @@ const IdeaForm = () => {
 
     setLoadingEval(true);
 
-    await ideaStore.evaluateIdea();
+    await ideaStore.evaluate();
 
-    // if (ideaStore.evaluation?.viable) await demandStore.evaluateDemand();
+    if (ideaStore.evaluation?.viable) await demandStore.evaluate();
 
     setEvaluation(ideaStore.evaluation);
 
@@ -46,18 +46,6 @@ const IdeaForm = () => {
   useEffect(() => {
     setEvaluation(ideaStore.evaluation);
   }, [ideaStore.evaluation]);
-
-  async function writeToJson() {
-    const response = await fetch("http://localhost:8000/savedata", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name: "John", age: 30 }),
-    });
-
-    console.log(response.body);
-  }
 
   return (
     <Box

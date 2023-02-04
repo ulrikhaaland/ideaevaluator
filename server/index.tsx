@@ -29,6 +29,18 @@ app.post("/ideadata", (req: Request, res: Response) => {
   }
 });
 
+app.post("/demanddata", (req: Request, res: Response) => {
+  const data: {}[] = req.body;
+
+  for (let i = 0; i < data.length; i++) {
+    const element = data[i];
+
+    const elementData = JSON.stringify(element);
+
+    fs.appendFileSync("demand-data.jsonl", elementData);
+  }
+});
+
 function writeJson() {
   let student = {
     name: "Mike",
